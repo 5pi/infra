@@ -1,0 +1,14 @@
+[Unit]
+Description=Kubernetes kubelet
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=tinc@default.service
+
+[Service]
+EnvironmentFile=/etc/environment.calc
+ExecStart=/usr/bin/hyperkube kubelet --address=${IP_INT} --api-servers=http://localhost:8080 --cadvisor-port=0
+Restart=on-failure
+# Type=notify # hyperkube seems not to signal
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

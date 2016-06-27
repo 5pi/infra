@@ -1,0 +1,9 @@
+#!/bin/bash
+set -euo pipefail
+
+. /etc/environment.tf
+. /etc/environment.calc
+
+ip route del $IP_INT_PREFIX.0.0/16 dev $INTERFACE
+ip addr del $IP_INT/32 dev $INTERFACE
+ip link set $INTERFACE down

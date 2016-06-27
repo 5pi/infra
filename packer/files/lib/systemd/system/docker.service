@@ -1,0 +1,24 @@
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network.target docker.socket
+Requires=docker.socket
+
+[Service]
+EnvironmentFile=/etc/environment.tf
+Type=notify
+ExecStart=/usr/bin/docker daemon -H fd:// \
+  --storage-driver=overlay \
+  --iptables=false \
+  --ip-masq=false \
+  --bip ${IP_INT_PREFIX}.${INDEX}.129/25
+MountFlags=slave
+LimitNOFILE=1048576
+LimitNPROC=1048576
+LimitCORE=infinity
+TimeoutStartSec=0
+# set delegate yes so that systemd does not reset the cgroups of docker containers
+Delegate=yes
+
+[Install]
+WantedBy=multi-user.target

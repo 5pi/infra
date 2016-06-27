@@ -1,0 +1,14 @@
+[Unit]
+Description=Kubernetes scheduler
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=tinc@default.service
+
+[Service]
+EnvironmentFile=/etc/environment.calc
+ExecStart=/usr/bin/hyperkube proxy --bind-address=${IP_INT} --master=http://localhost:8080
+Restart=on-failure
+# Type=notify # hyperkube seems not to signal
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

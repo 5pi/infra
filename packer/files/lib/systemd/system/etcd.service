@@ -1,0 +1,20 @@
+[Unit]
+Description=etcd
+After=network-online.target tinc@default.service
+
+[Service]
+TimeoutStartSec=0
+EnvironmentFile=/etc/environment.tf
+EnvironmentFile=/etc/environment.calc
+ExecStart=/opt/etcd/etcd --name master${INDEX} \
+  --advertise-client-urls "http://${IP_INT}:2379" \
+  --listen-client-urls "http://${IP_INT}:2379,http://${IP_INT}:4001,http://localhost:2379,http://localhost:4001" \
+  --listen-peer-urls "http://${IP_INT}:2380,http://${IP_INT}:7001" \
+  --data-dir /var/lib/etcd \
+  $OPTS
+ExecStop=/opt/etcd/etcdctl member remove ${NAME}
+Restart=always
+StartLimitInterval=0
+
+[Install]
+WantedBy=multi-user.target

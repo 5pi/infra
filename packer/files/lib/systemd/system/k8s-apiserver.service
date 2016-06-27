@@ -1,0 +1,21 @@
+[Unit]
+Description=Kubernetes API Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=network.target tinc@default.service
+
+[Service]
+EnvironmentFile=/etc/environment.tf
+EnvironmentFile=/etc/environment.calc
+User=k8s
+ExecStart=/usr/bin/hyperkube apiserver \
+  --bind-address=${IP_INT} \
+  --etcd-servers http://${IP_INT_PREFIX}.0.1:2379,http://${IP_INT_PREFIX}.1.1:2379,http://${IP_INT_PREFIX}.2.1:2379 \
+  --service-cluster-ip-range 10.10.10.0/24 \
+  --apiserver-count $SERVERS \
+  --cert-dir /etc/kubernetes
+Restart=on-failure
+Type=notify
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

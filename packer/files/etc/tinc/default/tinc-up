@@ -1,0 +1,16 @@
+#!/bin/bash
+set -euo pipefail
+
+echo -n "Waiting for /etc/environment.*"
+while ! [[ -e /etc/environment.tf || -e /etc/environment.calc ]]; do
+  echo -n .
+  sleep 1
+done
+echo
+
+. /etc/environment.tf
+. /etc/environment.calc
+
+ip link set $INTERFACE up
+ip addr add  $IP_INT/32 dev $INTERFACE
+ip route add $IP_INT_PREFIX.0.0/16 dev $INTERFACE

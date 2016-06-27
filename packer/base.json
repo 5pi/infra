@@ -1,0 +1,32 @@
+{
+  "variables": {
+    "api_token": "{{env `api_token`}}"
+  },
+  "builders": [{
+    "type": "digitalocean",
+    "api_token": "{{ user `api_token` }}",
+    "image": "ubuntu-16-04-x64",
+    "region": "ams3",
+    "size": "512mb"
+  }],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "files",
+      "destination": "/tmp/rootfs"
+    },
+    {
+      "type": "shell",
+      "execute_command": "{{ .Vars }} sudo -E bash -ex '{{ .Path }}'",
+      "script": "install.sh"
+    },
+    {
+      "type": "shell",
+      "execute_command": "{{ .Vars }} sudo -E bash -ex '{{ .Path }}'",
+      "inline": [
+        "find /var/log -type f -delete",
+        "rm -rf /tmp/*"
+      ]
+    }
+  ]
+}
