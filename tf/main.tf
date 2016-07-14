@@ -1,6 +1,5 @@
 variable "domain" {
   type = "string"
-  default = "int.5pi.de"
 }
 
 variable "api_token" {
@@ -14,17 +13,15 @@ variable "cluster_state" {
 }
 
 variable "servers" {
-  default = 3
 }
 
 variable "ip_int_prefix" {
   type = "string"
-  default = "10.130"
 }
 
 variable "image" {
   type = "string"
-  default = "18135790"
+  default = "18457083"
 }
 
 provider "digitalocean" {
@@ -40,7 +37,7 @@ resource "digitalocean_droplet" "master" {
   count = "${var.servers}"
   name = "master${count.index}"
   image = "${var.image}"
-  region = "ams3"
+  region = "ams2"
   size = "512mb"
   private_networking = true
   ssh_keys = [ "${digitalocean_ssh_key.default.id}" ]
@@ -49,8 +46,16 @@ resource "digitalocean_droplet" "master" {
       destination = "/tmp/configure.sh"
   }
   provisioner "file" {
-      source = "../config/master${count.index}/rsa_key.priv"
+      source = "../config/generated/tinc/master${count.index}/rsa_key.priv"
       destination = "/etc/tinc/default/rsa_key.priv"
+  }
+  provisioner "file" {
+      source = "../config/generated/master${count.index}.pem"
+      destination = "/etc/ssl/server.pem"
+  }
+  provisioner "file" {
+      source = "../config/generated/master${count.index}-key.pem"
+      destination = "/etc/ssl/server-key.pem"
   }
   provisioner "remote-exec" {
     inline = [

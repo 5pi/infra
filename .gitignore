@@ -1,4 +1,7 @@
 id_rsa
 rsa_key.priv
+server-key.pem
+ca-key.pem
 tf/terraform.tfstate
 tf/terraform.tfstate.backup
+config/generated/

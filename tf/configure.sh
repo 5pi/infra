@@ -39,7 +39,7 @@ EOF
 
 # Enabling services here, so they don't come up unconfigured
 for s in tinc@default etcd k8s-apiserver k8s-controller-manager \
-         k8s-kubelet k8s-proxy k8s-scheduler; do
+    k8s-kubelet k8s-proxy k8s-scheduler torusd docker node_exporter; do
   systemctl enable "$s"
   systemctl start  "$s" || true # Might fail due to lack of other cluster members not being up yet
 done

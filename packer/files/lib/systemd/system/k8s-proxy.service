@@ -1,5 +1,5 @@
 [Unit]
-Description=Kubernetes scheduler
+Description=Kubernetes proxy
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 After=tinc@default.service
 

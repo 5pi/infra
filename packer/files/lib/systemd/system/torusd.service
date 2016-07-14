@@ -5,8 +5,9 @@ After=network-online.target tinc@default.service
 [Service]
 TimeoutStartSec=0
 EnvironmentFile=/etc/environment.tf
+EnvironmentFile=/etc/environment.calc
 ExecStart=/opt/torus/torusd \
-  --peer-address http://$IP_INT:40000 \
+  --peer-address http://${IP_INT}:40000 \
   --data-dir /var/lib/torus \
   --size $TORUS_SIZE
 Restart=always

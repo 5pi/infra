@@ -3,16 +3,27 @@ Description=etcd
 After=network-online.target tinc@default.service
 
 [Service]
+Type=notify
 TimeoutStartSec=0
 EnvironmentFile=/etc/environment.tf
 EnvironmentFile=/etc/environment.calc
-ExecStart=/opt/etcd/etcd --name master${INDEX} \
+ExecStart=/usr/bin/etcd --name master${INDEX} \
   --advertise-client-urls "http://${IP_INT}:2379" \
   --listen-client-urls "http://${IP_INT}:2379,http://${IP_INT}:4001,http://localhost:2379,http://localhost:4001" \
   --listen-peer-urls "http://${IP_INT}:2380,http://${IP_INT}:7001" \
   --data-dir /var/lib/etcd \
+  --cert-file /etc/ssl/server.pem \
+  --key-file /etc/ssl/server-key.pem \
+  --client-cert-auth --trusted-ca-file /etc/ssl/5pi-ca.pem \
+  --peer-cert-file /etc/ssl/server.pem \
+  --peer-key-file /etc/ssl/server-key.pem \
+  --peer-client-cert-auth --peer-trusted-ca-file /etc/ssl/5pi-ca.pem \
   $OPTS
-ExecStop=/opt/etcd/etcdctl member remove ${NAME}
+ExecStop=/usr/bin/etcdctl \
+  --ca-file /etc/ssl/5pi-ca.pem \
+  --cert-file /etc/ssl/server.pem \
+  --key-file /etc/ssl/server-key.pem \
+  member remove ${NAME}
 Restart=always
 StartLimitInterval=0
 

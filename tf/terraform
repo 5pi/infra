@@ -1,0 +1,12 @@
+#!/bin/sh
+. ../config/env
+
+CMD=$1
+shift
+terraform \
+  "$CMD" \
+  -var domain=$DOMAIN \
+  -var api_token=$(cat ~/.do-token) \
+  -var servers=$SERVERS \
+  -var ip_int_prefix=$IP_INT_PREFIX \
+  "$@"

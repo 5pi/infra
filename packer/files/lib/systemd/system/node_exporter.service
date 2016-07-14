@@ -1,0 +1,13 @@
+[Unit]
+Description=Prometheus exporter for machine metrics
+Wants=basic.target
+After=basic.target network.target cloud-final.service
+
+[Service]
+EnvironmentFile=/etc/environment.calc
+ExecStart=/usr/bin/node_exporter \
+  -web.listen-address ${IP_INT}:9100 \
+  -collectors.enabled "conntrack,diskstats,entropy,filefd,filesystem,loadavg,mdadm,meminfo,netdev,netstat,sockstat,stat,textfile,time,uname,vmstat,systemd"
+
+[Install]
+WantedBy=multi-user.target

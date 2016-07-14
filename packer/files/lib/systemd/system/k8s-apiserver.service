@@ -1,7 +1,7 @@
 [Unit]
 Description=Kubernetes API Server
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
-After=network.target tinc@default.service
+After=network.target tinc@default.service cloud-final.service
 
 [Service]
 EnvironmentFile=/etc/environment.tf
@@ -12,6 +12,9 @@ ExecStart=/usr/bin/hyperkube apiserver \
   --etcd-servers http://${IP_INT_PREFIX}.0.1:2379,http://${IP_INT_PREFIX}.1.1:2379,http://${IP_INT_PREFIX}.2.1:2379 \
   --service-cluster-ip-range 10.10.10.0/24 \
   --apiserver-count $SERVERS \
+  --tls-cert-file /etc/ssl/server.pem \
+  --tls-private-key-file /etc/ssl/server-key.pem \
+  --client-ca-file /etc/ssl/5pi-ca.pem \
   --cert-dir /etc/kubernetes
 Restart=on-failure
 Type=notify
