@@ -6,7 +6,11 @@ After=tinc@default.service
 [Service]
 EnvironmentFile=/etc/environment.calc
 User=k8s
-ExecStart=/usr/bin/hyperkube controller-manager --address=${IP_INT}
+ExecStart=/usr/bin/hyperkube controller-manager \
+  --address ${IP_INT} \
+  --service-account-private-key-file /etc/kubernetes/serviceaccount.key \
+  --leader-elect \
+  --master http://localhost:8080
 Restart=on-failure
 # Type=notify # hyperkube seems not to signal
 LimitNOFILE=65536

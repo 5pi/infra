@@ -9,13 +9,18 @@ EnvironmentFile=/etc/environment.calc
 User=k8s
 ExecStart=/usr/bin/hyperkube apiserver \
   --bind-address=${IP_INT} \
-  --etcd-servers http://${IP_INT_PREFIX}.0.1:2379,http://${IP_INT_PREFIX}.1.1:2379,http://${IP_INT_PREFIX}.2.1:2379 \
+  --etcd-servers https://master1:2379,https://master2:2379,https://master3:2379 \
   --service-cluster-ip-range 10.10.10.0/24 \
   --apiserver-count $SERVERS \
   --tls-cert-file /etc/ssl/server.pem \
   --tls-private-key-file /etc/ssl/server-key.pem \
   --client-ca-file /etc/ssl/5pi-ca.pem \
-  --cert-dir /etc/kubernetes
+  --etcd-cafile /etc/ssl/5pi-ca.pem \
+  --etcd-certfile /etc/ssl/server.pem \
+  --etcd-keyfile /etc/ssl/server-key.pem \
+  --cert-dir /etc/kubernetes \
+  --service-account-key-file /etc/kubernetes/serviceaccount.key \
+  --admission-control NamespaceLifecycle,LimitRanger,ServiceAccount,ResourceQuota
 Restart=on-failure
 Type=notify
 LimitNOFILE=65536

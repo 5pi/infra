@@ -6,7 +6,7 @@ After=tinc@default.service
 [Service]
 EnvironmentFile=/etc/environment.calc
 User=k8s
-ExecStart=/usr/bin/hyperkube scheduler --address=${IP_INT} --master=http://localhost:8080
+ExecStart=/usr/bin/hyperkube scheduler --address ${IP_INT} --master http://localhost:8080 --leader-elect
 Restart=on-failure
 # Type=notify # hyperkube seems not to signal
 LimitNOFILE=65536

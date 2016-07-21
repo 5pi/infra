@@ -12,16 +12,16 @@ case "$STATE" in
   new)
     CLUSTER=
     for ((i=0;i<SERVERS;i++)); do
-      CLUSTER="master$i=http://${IP_INT_PREFIX}.$i.1:2380,$CLUSTER"
+      CLUSTER="master$i=https://${IP_INT_PREFIX}.$i.1:2380,$CLUSTER"
     done
 
-    OPTS="--initial-cluster-state new --initial-cluster $CLUSTER  --initial-advertise-peer-urls http://$IP_INT:2380"
+    OPTS="--initial-cluster-state new --initial-cluster $CLUSTER  --initial-advertise-peer-urls https://$IP_INT:2380"
     ;;
   existing)
     ENDPOINTS=
     for ((i=0;i<=SERVERS;i++)); do
       [ "$i" -eq "$INDEX" ] && continue
-      ENDPOINTS="http://${IP_INT_PREFIX}.$i.1:4001,$ENDPOINTS"
+      ENDPOINTS="http://${IP_INT_PREFIX}.$i.1:2379,$ENDPOINTS"
     done
 
     /opt/etcd/etcdctl --endpoint $ENDPOINTS member add $(hostname) "http://$IP_INT:2380"
@@ -41,7 +41,7 @@ EOF
 for s in tinc@default etcd k8s-apiserver k8s-controller-manager \
     k8s-kubelet k8s-proxy k8s-scheduler torusd docker node_exporter; do
   systemctl enable "$s"
-  systemctl start  "$s" || true # Might fail due to lack of other cluster members not being up yet
+  systemctl start  "$s" --no-block
 done
 
 # Waiting for things to be ready

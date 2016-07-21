@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-ETCD_VERSION=3.0.0-beta.0
+ETCD_VERSION=3.0.3
 KUB_VERSION=1.2.5
 TORUS_VERSION=0.1.1
 NODE_EXPORTER_VERSION=0.12.0
@@ -79,6 +79,7 @@ cp /usr/bin/torusblk /usr/libexec/kubernetes/kubelet-plugins/volume/exec/coreos.
 
 useradd -m -G docker k8s
 install -d -m 755 -o k8s -g k8s /etc/kubernetes
+openssl genrsa 2048 | install -m600 -ok8s /dev/stdin /etc/kubernetes/serviceaccount.key
 
 # Install node-exporter
 curl -L "$NODE_EXPORTER_URL" \
