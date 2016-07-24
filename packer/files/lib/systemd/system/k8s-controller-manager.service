@@ -9,6 +9,7 @@ User=k8s
 ExecStart=/usr/bin/hyperkube controller-manager \
   --address ${IP_INT} \
   --service-account-private-key-file /etc/kubernetes/serviceaccount.key \
+  --root-ca-file /etc/ssl/5pi-ca.pem \
   --leader-elect \
   --master http://localhost:8080
 Restart=on-failure
