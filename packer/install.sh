@@ -2,12 +2,10 @@
 set -euo pipefail
 ETCD_VERSION=3.0.3
 KUB_VERSION=1.2.5
-TORUS_VERSION=0.1.1
 NODE_EXPORTER_VERSION=0.12.0
 
 ETCD_URL="https://github.com/coreos/etcd/releases/download/v${ETCD_VERSION}/etcd-v${ETCD_VERSION}-linux-amd64.tar.gz"
 KUB_URL="https://github.com/kubernetes/kubernetes/releases/download/v${KUB_VERSION}/kubernetes.tar.gz"
-TORUS_URL="https://github.com/coreos/torus/releases/download/v${TORUS_VERSION}/torus_v${TORUS_VERSION}_linux_amd64.tar.gz"
 NODE_EXPORTER_URL="https://github.com/prometheus/node_exporter/releases/download/${NODE_EXPORTER_VERSION}/node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64.tar.gz"
 
 cat <<EOF > /etc/apt/apt.conf.d/local
@@ -70,12 +68,11 @@ tar -C /tmp -xzf  /tmp/kubernetes/server/kubernetes-server-linux-amd64.tar.gz ku
 mv /tmp/kubernetes/server/bin/hyperkube /usr/bin
 ln -s hyperkube /usr/bin/kubectl
 
-# Install Torus
-curl -L "$TORUS_URL" \
-  | tar -C /usr/bin -xzf - --strip-components=1
-
-mkdir -p /usr/libexec/kubernetes/kubelet-plugins/volume/exec/coreos.com~torus/
-cp /usr/bin/torusblk /usr/libexec/kubernetes/kubelet-plugins/volume/exec/coreos.com~torus/torus
+# Install my patched Torus
+for b in torusblk torusctl torusd; do
+	curl -L "https://github.com/discordianfish/torus/releases/download/v0.1.1-fish/$b.linux.amd64.gz" \
+		| zcat | install -m 755 /dev/stdin -o root -g root /usr/bin/$b
+done
 
 useradd -m -G docker k8s
 install -d -m 755 -o k8s -g k8s /etc/kubernetes

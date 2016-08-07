@@ -1,0 +1,8 @@
+#!/bin/sh
+
+exec /usr/bin/torusblk \
+  -C https://`hostname`:2379 \
+	--etcd-ca-file /etc/ssl/5pi-ca.pem \
+	--etcd-cert-file /etc/ssl/server.pem \
+	--etcd-key-file /etc/ssl/server-key.pem \
+  "$@"

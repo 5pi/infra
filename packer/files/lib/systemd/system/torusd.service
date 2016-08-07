@@ -6,10 +6,15 @@ After=network-online.target tinc@default.service
 TimeoutStartSec=0
 EnvironmentFile=/etc/environment.tf
 EnvironmentFile=/etc/environment.calc
-ExecStart=/opt/torus/torusd \
+ExecStartPre=/sbin/modprobe nbd
+ExecStart=/usr/bin/torusd \
   --peer-address http://${IP_INT}:40000 \
   --data-dir /var/lib/torus \
-  --size $TORUS_SIZE
+  --size $TORUS_SIZE \
+  --etcd https://%H:2379 \
+  --etcd-ca-file /etc/ssl/5pi-ca.pem \
+  --etcd-cert-file /etc/ssl/server.pem \
+  --etcd-key-file /etc/ssl/server-key.pem
 Restart=always
 StartLimitInterval=0
 

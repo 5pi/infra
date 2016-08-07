@@ -21,7 +21,7 @@ variable "ip_int_prefix" {
 
 variable "image" {
   type = "string"
-  default = "18611017"
+  default = "18686941"
 }
 
 provider "digitalocean" {
