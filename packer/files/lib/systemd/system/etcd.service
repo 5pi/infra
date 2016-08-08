@@ -22,6 +22,9 @@ ExecStart=/usr/bin/etcd --name master${INDEX} \
   --peer-cert-file /etc/ssl/server.pem \
   --peer-key-file /etc/ssl/server-key.pem \
   --peer-trusted-ca-file /etc/ssl/5pi-ca.pem \
+  \
+  --heartbeat-interval 200 \
+  --election-timeout 5000 \
   $OPTS
 ExecStop=/usr/bin/etcdctl \
   --ca-file /etc/ssl/5pi-ca.pem \
