@@ -21,7 +21,7 @@ variable "ip_int_prefix" {
 
 variable "image" {
   type = "string"
-  default = "18686941"
+  default = "18983427"
 }
 
 provider "digitalocean" {
@@ -37,7 +37,7 @@ resource "digitalocean_droplet" "master" {
   count = "${var.servers}"
   name = "master${count.index}"
   image = "${var.image}"
-  region = "ams2"
+  region = "fra1"
   size = "512mb"
   private_networking = true
   ssh_keys = [ "${digitalocean_ssh_key.default.id}" ]
@@ -69,6 +69,7 @@ resource "digitalocean_droplet" "master" {
       "TORUS_SIZE=20GiB",
       "EOF",
       "chmod a+x /tmp/configure.sh",
+      "echo '${var.api_token}' | install -m 600 /dev/stdin /etc/do.token",
       "exec /tmp/configure.sh"
     ]
   }

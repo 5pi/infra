@@ -1,0 +1,119 @@
+#!/bin/bash
+set -euo pipefail
+
+DEV_PREFIX="/dev/disk/by-id/scsi-0DO_Volume_"
+DO_API="https://api.digitalocean.com"
+DO_TOKEN=
+
+DROPLET_ID=$(curl -LSsf "http://169.254.169.254/metadata/v1/id")
+REGION=$(curl -LSsf "http://169.254.169.254/metadata/v1/region")
+ACTION=
+
+ocean() {
+  local action=$1
+  local path=$2
+  shift 2
+  args=$(echo "$@" | sed 's/\([^ ][^=]*\)=\([^ ]*\)/"\1": "\2",/g;s/,$//')
+  curl -LSsfX "$action" "$DO_API/$path" \
+    -H 'Content-Type: application/json' \
+    -H "Authorization: Bearer $DO_TOKEN" \
+    -d "{ $args }"
+}
+
+fatal() {
+  local msg="$1"
+  local device="${2:-}"
+  echo "Fatal: $msg" >&2
+  echo '{ "status": "Failure", "message": "'$msg'", "device": "'$device'" }'
+  exit 1
+}
+
+success() {
+  local device="$1"
+  local msg="${2:-}"
+  echo "Success: $msg" >&2
+  echo '{ "status": "Success", "message": "'$msg'", "device": "'$device'" }'
+}
+
+init_vol() {
+  if ! which jq > /dev/null; then
+    fatal "jq required but not found in path" >&2
+  fi
+  success ""
+}
+
+attach_vol() {
+  local name=$(echo "$1" | jq -r .volume)
+  response=$(ocean POST "/v2/volumes/actions" \
+    "type=attach" \
+    "droplet_id=$DROPLET_ID" \
+    "volume_name=$name" \
+    "region=$REGION" \
+  ) || fatal "Couldn't attach volume"
+  success "${DEV_PREFIX}$name"
+}
+
+detach_vol() {
+  local device="$1"
+  local name="${device#/dev/disk/by-id/scsi-0DO_Volume_}"
+  response=$(ocean POST "/v2/volumes/actions" \
+    "type=detach" \
+    "droplet_id=$DROPLET_ID" \
+    "volume_name=$name" \
+    "region=$REGION"
+  ) || fatal "Couldn't detach volume"
+  success "$device"
+}
+
+mount_vol() {
+  local mnt="$1"
+  local device="$2"
+  mount "$device" "$mnt" || fatal "Couldn't mount $device on $mnt"
+  success "$device"
+}
+
+mount_vol() {
+  local mnt="$1"
+  umount "$mnt" || fatal "Couldn't unmount $mnt"
+  success "$device"
+}
+
+main() {
+  if [ "$#" -lt 1 ]; then
+    fatal "Missing argument. Syntax: $0 init|attach|detach|mount|unmount"
+  fi
+  
+  ACTION=$1
+  shift
+  if ! [ -e "/etc/do.token" ]; then
+    fatal "/etc/do.token missing"
+  fi
+  DO_TOKEN=$(cat /etc/do.token)
+
+  case "$ACTION" in
+    init)
+      init_vol "$@"
+      ;;
+    attach)
+      [ "$#" -lt 1 ] && fatal "Missing argument. Syntax $0 attach <json-options>"
+      attach_vol "$@"
+      ;;
+    detach)
+      [ "$#" -lt 1 ] && fatal "Missing argument. Syntax $0 detach <mount-device>"
+      detach_vol "$@"
+      ;;
+    mount)
+      [ "$#" -lt 2 ] && fatal "Missing argument. Syntax $0 mount <target mount dir> <mount-device> <json options>"
+      mount_vol "$@"
+      ;;
+    unmount)
+      [ "$#" -lt 1 ] && fatal "Missing argument. Syntax $0 unmount <mount dir>"
+      unmount_vol "$@"
+      ;;
+    *)
+      fatal "Invalid action $1"
+      ;;
+  esac
+}
+
+main "$@"

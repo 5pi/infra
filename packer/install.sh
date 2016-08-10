@@ -26,8 +26,8 @@ echo 'deb https://apt.dockerproject.org/repo ubuntu-xenial main' \
 apt-get -qy update
 apt-get -qy dist-upgrade
 
-# Install tinc and docker
-apt-get -qy install tinc docker-engine
+# Install packages
+apt-get -qy install tinc docker-engine jq
 systemctl disable docker apt-daily
 
 # Configure tinc
