@@ -21,7 +21,7 @@ variable "ip_int_prefix" {
 
 variable "image" {
   type = "string"
-  default = "18983427"
+  default = "19024392"
 }
 
 provider "digitalocean" {
@@ -69,7 +69,7 @@ resource "digitalocean_droplet" "master" {
       "TORUS_SIZE=20GiB",
       "EOF",
       "chmod a+x /tmp/configure.sh",
-      "echo '${var.api_token}' | install -m 600 /dev/stdin /etc/do.token",
+      "echo '${var.api_token}' | install -m 640 -g k8s /dev/stdin /etc/do.token",
       "exec /tmp/configure.sh"
     ]
   }
