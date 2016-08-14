@@ -5,8 +5,9 @@ DEV_PREFIX="/dev/disk/by-id/scsi-0DO_Volume_"
 DO_API="https://api.digitalocean.com"
 DO_TOKEN=
 
-DROPLET_ID=$(curl -LSsf "http://169.254.169.254/metadata/v1/id")
-REGION=$(curl -LSsf "http://169.254.169.254/metadata/v1/region")
+CURL="curl -LSsf"
+DROPLET_ID=$($CURL "http://169.254.169.254/metadata/v1/id")
+REGION=$($CURL "http://169.254.169.254/metadata/v1/region")
 ACTION=
 
 ocean() {
@@ -14,16 +15,16 @@ ocean() {
   local path=$2
   shift 2
   args=$(echo "$@" | sed 's/\([^ ][^=]*\)=\([^ ]*\)/"\1": "\2",/g;s/,$//')
-  curl -LSsfX "$action" "$DO_API/$path" \
+  $CURL -X "$action" "$DO_API/$path" \
     -H 'Content-Type: application/json' \
     -H "Authorization: Bearer $DO_TOKEN" \
-    -d "{ $args }"
+    -d "{ $args }" 2>&1 # If curl suceeds, output is only stdout. If fails, only stderr
 }
 
 fatal() {
   local msg="$1"
   local device="${2:-}"
-  echo "Fatal: $msg" >&2
+  [ -t 2 ] && echo "Fatal: $msg" >&2
   echo '{ "status": "Failure", "message": "'$msg'", "device": "'$device'" }'
   exit 1
 }
@@ -31,8 +32,9 @@ fatal() {
 success() {
   local device="$1"
   local msg="${2:-}"
-  echo "Success: $msg" >&2
+  [ -t 2 ] && echo "Success: $msg" >&2
   echo '{ "status": "Success", "message": "'$msg'", "device": "'$device'" }'
+  exit 0
 }
 
 init_vol() {
@@ -44,12 +46,24 @@ init_vol() {
 
 attach_vol() {
   local name=$(echo "$1" | jq -r .volume)
+
+  attached_id=$(ocean GET "/v2/volumes?name=$name&region=$REGION" \
+    | jq -r '.volumes[0].droplet_ids[0]') \
+      || fatal "Couldn't retrieve volume"
+
+  if [[ "$attached_id" != "null" ]]; then
+    if [[ "$attached_id" -eq "$DROPLET_ID" ]]; then
+      success "${DEV_PREFIX}$name" "already attached"
+    fi
+    fatal "Volume already attached to $attached_id"
+  fi
+
   response=$(ocean POST "/v2/volumes/actions" \
     "type=attach" \
     "droplet_id=$DROPLET_ID" \
     "volume_name=$name" \
     "region=$REGION" \
-  ) || fatal "Couldn't attach volume"
+  ) || fatal "Couldn't attach volume: $response"
   success "${DEV_PREFIX}$name"
 }
 
@@ -61,34 +75,52 @@ detach_vol() {
     "droplet_id=$DROPLET_ID" \
     "volume_name=$name" \
     "region=$REGION"
-  ) || fatal "Couldn't detach volume"
+  ) || fatal "Couldn't detach volume: $response"
   success "$device"
 }
 
 mount_vol() {
   local mnt="$1"
   local device="$2"
+  mkdir -p "$mnt"
   mount "$device" "$mnt" || fatal "Couldn't mount $device on $mnt"
   success "$device"
 }
 
-mount_vol() {
+unmount_vol() {
   local mnt="$1"
   umount "$mnt" || fatal "Couldn't unmount $mnt"
+  rmdir "$mnt"
   success "$device"
+}
+
+create_vol() {
+  local name="$1"
+  local size="$2"
+  shift 2
+  local comment="$@"
+  ocean POST "/v2/volumes" \
+    "name=$name" \
+    "size_gigabytes=$size" \
+    "comment=$comment" \
+    "region=$REGION" \
+    || fatal "Couldn't create volume"
 }
 
 main() {
   if [ "$#" -lt 1 ]; then
-    fatal "Missing argument. Syntax: $0 init|attach|detach|mount|unmount"
+    fatal "Missing argument. Syntax: $0 create|init|attach|detach|mount|unmount"
   fi
-  
   ACTION=$1
   shift
-  if ! [ -e "/etc/do.token" ]; then
-    fatal "/etc/do.token missing"
+
+  DO_TOKEN=$(cat /etc/do.token 2>/dev/null) \
+    || fatal "/etc/do.token missing or unreadable"
+
+  if [ -n "${DEBUG:-}" ]; then
+    CURL="curl -Lf"
+    set -x
   fi
-  DO_TOKEN=$(cat /etc/do.token)
 
   case "$ACTION" in
     init)
@@ -109,6 +141,10 @@ main() {
     unmount)
       [ "$#" -lt 1 ] && fatal "Missing argument. Syntax $0 unmount <mount dir>"
       unmount_vol "$@"
+      ;;
+    create)
+      [ "$#" -lt 2 ] && fatal "Missing argument. Syntax $0 create <name> <size-in-gb> [description...]"
+      create_vol "$@"
       ;;
     *)
       fatal "Invalid action $1"
