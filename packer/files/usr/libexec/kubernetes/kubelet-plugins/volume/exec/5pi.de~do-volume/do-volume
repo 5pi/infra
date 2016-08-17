@@ -1,5 +1,7 @@
 #!/bin/bash
 set -euo pipefail
+exec 3>&1 # Preserve stdout
+exec > "/tmp/do-volume.$(id -gn).log" 2>&1
 
 DEV_PREFIX="/dev/disk/by-id/scsi-0DO_Volume_"
 DO_API="https://api.digitalocean.com"
@@ -25,7 +27,7 @@ fatal() {
   local msg="$1"
   local device="${2:-}"
   [ -t 2 ] && echo "Fatal: $msg" >&2
-  echo '{ "status": "Failure", "message": "'$msg'", "device": "'$device'" }'
+  echo '{ "status": "Failure", "message": "'$msg'", "device": "'$device'" }' >&3
   exit 1
 }
 
@@ -33,7 +35,7 @@ success() {
   local device="$1"
   local msg="${2:-}"
   [ -t 2 ] && echo "Success: $msg" >&2
-  echo '{ "status": "Success", "message": "'$msg'", "device": "'$device'" }'
+  echo '{ "status": "Success", "message": "'$msg'", "device": "'$device'" }' >&3
   exit 0
 }
 
@@ -67,9 +69,23 @@ attach_vol() {
   success "${DEV_PREFIX}$name"
 }
 
+device_to_name() {
+  local device="$1"
+  if [[ $device != ${DEV_PREFIX}* ]]; then
+    for f in ${DEV_PREFIX}*; do
+      t=$(readlink -f "$f")
+      if [[ "$t" == "$device" ]]; then
+	device="$f"
+	break
+      fi
+    done
+  fi
+  echo "${device#${DEV_PREFIX}}"
+}
+
 detach_vol() {
   local device="$1"
-  local name="${device#/dev/disk/by-id/scsi-0DO_Volume_}"
+  local name=$(device_to_name "$device")
   response=$(ocean POST "/v2/volumes/actions" \
     "type=detach" \
     "droplet_id=$DROPLET_ID" \
@@ -89,8 +105,11 @@ mount_vol() {
 
 unmount_vol() {
   local mnt="$1"
+  local device=$(grep "$mnt" /etc/mtab|cut -d' ' -f1)
+  if [[ -z "$device" ]]; then
+    success "$device" "Volume not mounted"
+  fi
   umount "$mnt" || fatal "Couldn't unmount $mnt"
-  rmdir "$mnt"
   success "$device"
 }
 
@@ -147,7 +166,7 @@ main() {
       create_vol "$@"
       ;;
     *)
-      fatal "Invalid action $1"
+      fatal "Invalid action $ACTION"
       ;;
   esac
 }
