@@ -26,8 +26,11 @@ echo 'deb https://apt.dockerproject.org/repo ubuntu-xenial main' \
 apt-get -qy update
 apt-get -qy dist-upgrade
 
+# Remove packages
+apt-get -qy remove update-notifier-common
+
 # Install packages
-apt-get -qy install tinc docker-engine jq
+apt-get -qy install tinc docker-engine jq htop
 systemctl disable docker apt-daily
 
 # Configure tinc
@@ -77,6 +80,9 @@ done
 useradd -m -G docker k8s
 install -d -m 755 -o k8s -g k8s /etc/kubernetes
 openssl genrsa 2048 | install -m600 -ok8s /dev/stdin /etc/kubernetes/serviceaccount.key
+
+# Enable rc-local which sets up NAT
+sudo systemctl enable rc-local.service
 
 # Install node-exporter
 curl -L "$NODE_EXPORTER_URL" \
