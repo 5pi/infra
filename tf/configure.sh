@@ -4,6 +4,15 @@ exec > /tmp/configure.log 2>&1
 set -euo pipefail
 . /etc/environment.tf
 
+# Enable swap
+fallocate -l 4G /swapfile
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+if ! grep /swapfile /etc/fstab; then
+	echo '/swapfile   none    swap    sw    0   0' >> /etc/fstab
+fi
+
 # Bring up tinc
 systemctl enable tinc@default
 systemctl start tinc@default
@@ -51,7 +60,7 @@ EOF
 
 # Enabling services here, so they don't come up unconfigured
 for s in etcd k8s-apiserver k8s-controller-manager \
-    k8s-kubelet k8s-proxy k8s-scheduler torusd docker node_exporter; do
+    k8s-kubelet k8s-proxy k8s-scheduler docker node_exporter; do
   systemctl enable "$s"
   systemctl start  "$s" --no-block
 done
