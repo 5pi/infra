@@ -1,12 +1,10 @@
 #!/bin/sh
 . ../config/env
 
-CMD=$1
-shift
+export TF_VAR_domain=$DOMAIN
+export TF_VAR_api_token=$(cat ~/.do-token)
+export TF_VAR_servers=$SERVERS
+export TF_VAR_ip_int_prefix=$IP_INT_PREFIX
+
 terraform \
-  "$CMD" \
-  -var domain=$DOMAIN \
-  -var api_token=$(cat ~/.do-token) \
-  -var servers=$SERVERS \
-  -var ip_int_prefix=$IP_INT_PREFIX \
   "$@"
