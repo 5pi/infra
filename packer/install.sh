@@ -89,7 +89,7 @@ install -d -m 755 -o k8s -g k8s /etc/kubernetes
 openssl genrsa 2048 | install -m600 -ok8s /dev/stdin /etc/kubernetes/serviceaccount.key
 
 # Enable rc-local which sets up NAT
-sudo systemctl enable rc-local.service
+systemctl enable rc-local.service
 
 # Install node-exporter
 curl -L "$NODE_EXPORTER_URL" \
