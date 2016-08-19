@@ -8,6 +8,13 @@ ETCD_URL="https://github.com/coreos/etcd/releases/download/v${ETCD_VERSION}/etcd
 KUB_URL="https://github.com/kubernetes/kubernetes/releases/download/v${KUB_VERSION}/kubernetes.tar.gz"
 NODE_EXPORTER_URL="https://github.com/prometheus/node_exporter/releases/download/${NODE_EXPORTER_VERSION}/node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64.tar.gz"
 
+cat <<EOF > /etc/buildinfo
+REVISION="$REVISION"
+BRANCH="$BRANCH"
+USER="$BUILD_USER"
+DATE="$(date -R)"
+EOF
+
 cat <<EOF > /etc/apt/apt.conf.d/local
 Dpkg::Options {
    "--force-confdef";

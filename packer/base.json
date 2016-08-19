@@ -1,6 +1,9 @@
 {
   "variables": {
-    "api_token": "{{env `api_token`}}"
+    "api_token": "{{env `api_token`}}",
+    "revision": "{{env `revision` }}",
+    "branch": "{{env `branch` }}",
+    "build_user": "{{env `user` }}"
   },
   "builders": [{
     "type": "digitalocean",
@@ -23,7 +26,12 @@
     {
       "type": "shell",
       "execute_command": "{{ .Vars }} sudo -E bash -ex '{{ .Path }}'",
-      "script": "install.sh"
+      "script": "install.sh",
+      "environment_vars": [
+        "REVISION={{ user `revision` }}",
+        "BRANCH={{ user `branch` }}",
+        "BUILD_USER={{ user `build_user` }}"
+      ]
     },
     {
       "type": "shell",
