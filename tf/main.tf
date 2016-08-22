@@ -2,6 +2,11 @@ variable "domain" {
   type = "string"
 }
 
+variable "region" {
+  type = "string"
+  default = "fra1"
+}
+
 variable "api_token" {
   type = "string"
 }
@@ -32,11 +37,18 @@ resource "digitalocean_ssh_key" "default" {
   public_key = "${file("id_rsa.pub")}"
 }
 
+resource "digitalocean_floating_ip" "edge" {
+  region = "${var.region}"
+  lifecycle {
+    ignore_changes = [ "droplet_id" ]
+  }
+}
+
 resource "digitalocean_droplet" "master" {
   count              = "${var.servers}"
   name               = "master${count.index}"
   image              = "${var.image}"
-  region             = "fra1"
+  region             = "${var.region}"
   size               = "512mb"
   private_networking = true
   ipv6               = true
@@ -80,6 +92,7 @@ resource "digitalocean_droplet" "master" {
   }
 }
 
+# masterX A record pointing to 'internal' IP, used for finding etcd peers
 resource "digitalocean_record" "master_a" {
   count  = "${var.servers}"
   domain = "${var.domain}"
@@ -88,83 +101,27 @@ resource "digitalocean_record" "master_a" {
   value  = "${element(digitalocean_droplet.master.*.ipv4_address_private, count.index)}"
 }
 
+# edge A record pointing to main LB via floating IP
 resource "digitalocean_record" "edge_a" {
   count  = "${var.servers}"
   domain = "${var.domain}"
   type   = "A"
-  name   = "edge"
+  name   = "edge${count.index}"
   value  = "${element(digitalocean_droplet.master.*.ipv4_address, count.index)}"
 }
 
-resource "digitalocean_record" "edge_aaaa" {
-  count  = "${var.servers}"
+# *.edge A wildcard record pointing to LB via floating IP
+resource "digitalocean_record" "star_edge" {
   domain = "${var.domain}"
-  type   = "AAAA"
+  type   = "A"
+  name   = "*.edge"
+  value  = "${digitalocean_floating_ip.edge.ip_address}"
+}
+
+# edgeX A record pointing to the public IPs
+resource "digitalocean_record" "edge" {
+  domain = "${var.domain}"
+  type   = "A"
   name   = "edge"
-  value  = "${element(digitalocean_droplet.master.*.ipv6_address, count.index)}"
+  value  = "${digitalocean_floating_ip.edge.ip_address}"
 }
-
-# Site-specific records / FIXME: use modules
-## textkrieg.de
-### @
-resource "digitalocean_record" "textkrieg_a" {
-  count  = "${var.servers}"
-  domain = "textkrieg.de"
-  name   = "@"
-  type   = "A"
-  value  = "${element(digitalocean_droplet.master.*.ipv4_address, count.index)}"
-}
-resource "digitalocean_record" "textkrieg_aaaa" {
-  count  = "${var.servers}"
-  domain = "textkrieg.de"
-  name   = "@"
-  type   = "AAAA"
-  value  = "${element(digitalocean_droplet.master.*.ipv6_address, count.index)}"
-}
-### www
-resource "digitalocean_record" "textkrieg_www_a" {
-  count  = "${var.servers}"
-  domain = "textkrieg.de"
-  name   = "www"
-  type   = "A"
-  value  = "${element(digitalocean_droplet.master.*.ipv4_address, count.index)}"
-}
-resource "digitalocean_record" "textkrieg_www_aaaa" {
-  count  = "${var.servers}"
-  domain = "textkrieg.de"
-  name   = "www"
-  type   = "AAAA"
-  value  = "${element(digitalocean_droplet.master.*.ipv6_address, count.index)}"
-}
-## 5pi.de
-### @
-resource "digitalocean_record" "5pi_a" {
-  count  = "${var.servers}"
-  domain = "5pi.de"
-  name   = "@"
-  type   = "A"
-  value  = "${element(digitalocean_droplet.master.*.ipv4_address, count.index)}"
-}
-resource "digitalocean_record" "5pi_aaaa" {
-  count  = "${var.servers}"
-  domain = "5pi.de"
-  name   = "@"
-  type   = "AAAA"
-  value  = "${element(digitalocean_droplet.master.*.ipv6_address, count.index)}"
-}
-### www
-resource "digitalocean_record" "5pi_www_a" {
-  count  = "${var.servers}"
-  domain = "5pi.de"
-  name   = "www"
-  type   = "A"
-  value  = "${element(digitalocean_droplet.master.*.ipv4_address, count.index)}"
-}
-resource "digitalocean_record" "5pi_www_aaaa" {
-  count  = "${var.servers}"
-  domain = "5pi.de"
-  name   = "www"
-  type   = "AAAA"
-  value  = "${element(digitalocean_droplet.master.*.ipv6_address, count.index)}"
-}
-
