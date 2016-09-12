@@ -1,6 +1,9 @@
 #!/bin/bash
 exec > /tmp/configure.log 2>&1
 
+# First fix permissions, no matter what. See hashicorp/terraform#8811
+chmod 640  /etc/ssl/server-key.pem
+chown :k8s /etc/ssl/server-key.pem
 set -euo pipefail
 . /etc/environment.tf
 
