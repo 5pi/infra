@@ -4,13 +4,16 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 After=tinc@default.service
 
 [Service]
+EnvironmentFile=/etc/environment.tf
 EnvironmentFile=/etc/environment.calc
 ExecStart=/usr/bin/hyperkube kubelet \
   --address ${IP_INT} \
   --api-servers http://localhost:8080 \
   --tls-cert-file /etc/ssl/server.pem \
   --tls-private-key-file /etc/ssl/server-key.pem \
-  --cadvisor-port 0
+  --cadvisor-port 0 \
+  --cluster-dns 10.10.10.10 \
+  --cluster-domain ${DOMAIN}
 Restart=on-failure
 # Type=notify # hyperkube seems not to signal
 LimitNOFILE=65536
