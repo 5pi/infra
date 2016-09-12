@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
-ETCD_VERSION=3.0.4
-KUB_VERSION=1.3.4
+ETCD_VERSION=3.0.8
+KUB_VERSION=1.3.6
 NODE_EXPORTER_VERSION=0.12.0
 
 ETCD_URL="https://github.com/coreos/etcd/releases/download/v${ETCD_VERSION}/etcd-v${ETCD_VERSION}-linux-amd64.tar.gz"
