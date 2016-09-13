@@ -9,7 +9,7 @@ ReloadPropagatedFrom=tinc.service
 [Service]
 Type=simple
 WorkingDirectory=/etc/tinc/%i
-ExecStart=/usr/sbin/tincd -n %i -D
+ExecStart=/usr/sbin/tincd -n %i -D --debug 3
 ExecReload=/usr/sbin/tinc -n %i reload
 Restart=on-failure
 RestartSec=5
