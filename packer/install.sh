@@ -37,7 +37,7 @@ apt-get -qy dist-upgrade
 apt-get -qy remove update-notifier-common
 
 # Install packages
-apt-get -qy install tinc docker-engine jq htop
+apt-get -qy install tinc docker-engine jq htop conntrack
 systemctl disable docker apt-daily
 
 # Configure tinc
