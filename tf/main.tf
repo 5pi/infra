@@ -18,12 +18,16 @@ variable "cluster_state" {
 
 variable "servers" {}
 
+variable "server_size" {
+  type = "string"
+}
+
 variable "ip_int_prefix" {
   type = "string"
 }
 
 variable "image" {
-  type    = "string"
+  type = "string"
 }
 
 provider "digitalocean" {
@@ -47,7 +51,7 @@ resource "digitalocean_droplet" "master" {
   name               = "master${count.index}"
   image              = "${var.image}"
   region             = "${var.region}"
-  size               = "512mb"
+  size               = "${var.server_size}"
   private_networking = true
   ipv6               = true
   ssh_keys           = ["${digitalocean_ssh_key.default.id}"]
