@@ -7,6 +7,11 @@ chown :k8s /etc/ssl/server-key.pem
 set -euo pipefail
 . /etc/environment.tf
 
+# Add servers to /etc/hosts
+for ((i=0;i<SERVERS;i++)); do
+  echo "${IP_INT_PREFIX}.$i.1 master$i"
+done >> /etc/hosts
+
 # Enable swap
 fallocate -l 4G /swapfile
 chmod 600 /swapfile
