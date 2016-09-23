@@ -4,7 +4,6 @@ variable "domain" {
 
 variable "region" {
   type = "string"
-  default = "fra1"
 }
 
 variable "api_token" {
@@ -25,7 +24,6 @@ variable "ip_int_prefix" {
 
 variable "image" {
   type    = "string"
-  default = "19658380"
 }
 
 provider "digitalocean" {

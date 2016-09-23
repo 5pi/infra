@@ -3,10 +3,11 @@ BRANCH   := $(shell git rev-parse --abbrev-ref HEAD)
 DO_TOKEN ?= $(shell cat ~/.do-token)
 
 all: check_dirty
-	packer build \
+	source ../config/env && packer build \
 		-var api_token=$(DO_TOKEN) \
 		-var revision=$(REVISION) \
 		-var branch=$(BRANCH) \
+		-var region=$(REGION)
 		base.json
 
 check_dirty:
