@@ -1,5 +1,5 @@
 {
-    "CN": "5pi.de CA",
+    "CN": "Cluster CA",
     "key": {
         "algo": "ecdsa",
         "size": 256
