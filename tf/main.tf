@@ -10,6 +10,11 @@ variable "api_token" {
   type = "string"
 }
 
+variable "config" {
+  type = "string"
+  default = "../config"
+}
+
 variable "cluster_state" {
   type        = "string"
   default     = "existing"
@@ -65,17 +70,17 @@ resource "digitalocean_droplet" "master" {
   }
 
   provisioner "file" {
-    source      = "../config/generated/tinc/master${count.index}/rsa_key.priv"
+    source      = "${var.config}/generated/tinc/master${count.index}/rsa_key.priv"
     destination = "/etc/tinc/default/rsa_key.priv"
   }
 
   provisioner "file" {
-    source      = "../config/generated/master${count.index}.pem"
+    source      = "${var.config}/generated/master${count.index}.pem"
     destination = "/etc/ssl/server.pem"
   }
 
   provisioner "file" {
-    source      = "../config/generated/master${count.index}-key.pem"
+    source      = "${var.config}/generated/master${count.index}-key.pem"
     destination = "/etc/ssl/server-key.pem"
   }
 
