@@ -5,7 +5,8 @@
     "revision": "{{env `revision` }}",
     "branch": "{{env `branch` }}",
     "build_user": "{{env `user` }}",
-    "build": "{{ env `build` }}"
+    "build": "{{ env `build` }}",
+    "region": "{{ env `region` }}"
   },
   "builders": [{
     "type": "digitalocean",

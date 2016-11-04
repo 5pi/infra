@@ -51,6 +51,10 @@ resource "digitalocean_floating_ip" "edge" {
   }
 }
 
+output "edge" {
+  value = "${digitalocean_floating_ip.edge.ip_address}"
+}
+
 resource "digitalocean_droplet" "master" {
   count              = "${var.servers}"
   name               = "master${count.index}"
@@ -100,6 +104,10 @@ resource "digitalocean_droplet" "master" {
       "exec /tmp/configure.sh",
     ]
   }
+}
+
+output "master_ips" {
+  value = "${join(",",digitalocean_droplet.master.*.ipv4_address_public)}"
 }
 
 # masterX A record pointing to 'internal' IP, used for finding etcd peers
