@@ -2,7 +2,7 @@
 set -euo pipefail
 
 echo -n "Waiting for /etc/environment.*"
-while ! [[ -e /etc/environment.tf || -e /etc/environment.calc ]]; do
+while ! [[ -e /etc/environment.tf && -e /etc/environment.calc ]]; do
   echo -n .
   sleep 1
 done
