@@ -1,12 +1,12 @@
 #!/bin/bash
 set -euo pipefail
-ETCD_VERSION=3.0.8
-KUB_VERSION=1.3.6
-NODE_EXPORTER_VERSION=0.12.0
+ETCD_VERSION=3.0.15
+KUB_VERSION=1.4.6
+NODE_EXPORTER_VERSION=0.13.0-rc.1
 
 ETCD_URL="https://github.com/coreos/etcd/releases/download/v${ETCD_VERSION}/etcd-v${ETCD_VERSION}-linux-amd64.tar.gz"
 KUB_URL="https://github.com/kubernetes/kubernetes/releases/download/v${KUB_VERSION}/kubernetes.tar.gz"
-NODE_EXPORTER_URL="https://github.com/prometheus/node_exporter/releases/download/${NODE_EXPORTER_VERSION}/node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64.tar.gz"
+NODE_EXPORTER_URL="https://github.com/prometheus/node_exporter/releases/download/v${NODE_EXPORTER_VERSION}/node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64.tar.gz"
 
 cat <<EOF > /etc/buildinfo
 REVISION="$REVISION"
