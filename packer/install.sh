@@ -76,6 +76,7 @@ curl -L "$KUB_URL" \
   | tar -C /tmp -xzf - kubernetes/server/kubernetes-server-linux-amd64.tar.gz
 tar -C /tmp -xzf  /tmp/kubernetes/server/kubernetes-server-linux-amd64.tar.gz kubernetes/server/bin/hyperkube
 mv /tmp/kubernetes/server/bin/hyperkube /usr/bin
+chmod a+x /usr/bin/hyperkube
 ln -s hyperkube /usr/bin/kubectl
 
 # Install my patched Torus
