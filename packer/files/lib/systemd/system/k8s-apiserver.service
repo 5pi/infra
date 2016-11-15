@@ -10,7 +10,7 @@ EnvironmentFile=/etc/environment.calc
 User=k8s
 ExecStart=/usr/bin/hyperkube apiserver \
   --bind-address=${IP_INT} \
-  --etcd-servers https://master1:2379,https://master2:2379,https://master3:2379 \
+  --etcd-servers ${ETCD_SERVERS} \
   --service-cluster-ip-range 10.10.10.0/24 \
   --apiserver-count $SERVERS \
   --tls-cert-file /etc/ssl/server.pem \

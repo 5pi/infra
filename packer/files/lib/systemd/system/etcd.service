@@ -26,7 +26,7 @@ ExecStart=/usr/bin/etcd --name master${INDEX} \
   \
   --heartbeat-interval 200 \
   --election-timeout 5000 \
-  $OPTS
+  $ETCD_OPTS
 ExecStop=/usr/bin/etcdctl \
   --ca-file /etc/ssl/5pi-ca.pem \
   --cert-file /etc/ssl/server.pem \

@@ -36,7 +36,7 @@ case "$STATE" in
       CLUSTER="master$i=https://${IP_INT_PREFIX}.$i.1:2380,$CLUSTER"
     done
 
-    OPTS="--initial-cluster-state new --initial-cluster $CLUSTER  --initial-advertise-peer-urls https://$IP_INT:2380"
+    ETCD_OPTS="--initial-cluster-state new --initial-cluster $CLUSTER  --initial-advertise-peer-urls https://$IP_INT:2380"
     ;;
   existing)
     ENDPOINTS=
@@ -54,15 +54,21 @@ case "$STATE" in
       echo "Waiting for remote etcd to be reachable"
       sleep 1
     done
-    OPTS="--initial-cluster-state existing"
+    ETCD_OPTS="--initial-cluster-state existing"
     ;;
   *)
     echo "State $STATE is invalid, aborting" >&2
     exit 1 
 esac
 
+ETCD_SERVERS=
+for ((i=0;i<SERVERS;i++)); do
+  ETCD_SERVERS="$ETCD_SERVERS,https://master$i:2379"
+done
+
 cat <<EOF > /etc/environment.calc
-OPTS='$OPTS'
+ETCD_OPTS='$ETCD_OPTS'
+ETCD_SERVERS='$ETCD_SERVERS'
 IP_INT='$IP_INT'
 EOF
 
