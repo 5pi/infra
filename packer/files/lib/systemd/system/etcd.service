@@ -1,6 +1,7 @@
 [Unit]
 Description=etcd
 After=network-online.target tinc@default.service
+Requires=tinc@default.service
 
 [Service]
 Type=notify

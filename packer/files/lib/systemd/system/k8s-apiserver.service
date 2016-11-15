@@ -1,7 +1,8 @@
 [Unit]
 Description=Kubernetes API Server
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
-After=network.target tinc@default.service cloud-final.service
+After=network.target tinc@default.service etcd.service cloud-final.service
+Requires=etcd.service
 
 [Service]
 EnvironmentFile=/etc/environment.tf
