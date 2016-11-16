@@ -5,3 +5,4 @@ alias torusctl="torusctl $torus_etcd_flags"
 alias torusblk="torusblk $torus_etcd_flags"
 
 alias etcdctl="etcdctl --endpoints https://$(hostname):2379 --ca-file /etc/ssl/5pi-ca.pem --cert-file /etc/ssl/server.pem --key-file /etc/ssl/server-key.pem"
+alias curla="curl -E /etc/ssl/server.pem --key /etc/ssl/server-key.pem --cacert /etc/ssl/5pi-ca.pem"
