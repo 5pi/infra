@@ -29,33 +29,24 @@ systemctl start tinc@default
 IP_INT="${IP_INT_PREFIX}.${INDEX}.1"
 
 # Configuring etcd
+ETCD_SERVERS=
+CLUSTER=
+for ((i=0;i<SERVERS;i++)); do
+  ETCD_SERVERS="https://master$i:2379,$ETCD_SERVERS"
+  CLUSTER="master$i=https://${IP_INT_PREFIX}.$i.1:2380,$CLUSTER"
+done
+
 case "$STATE" in
   new)
-    CLUSTER=
-    for ((i=0;i<SERVERS;i++)); do
-      CLUSTER="master$i=https://${IP_INT_PREFIX}.$i.1:2380,$CLUSTER"
-    done
-
-    ETCD_OPTS="--initial-cluster-state new --initial-cluster $CLUSTER  --initial-advertise-peer-urls https://$IP_INT:2380"
+    ETCD_OPTS="--initial-cluster-state new --initial-cluster $CLUSTER --initial-advertise-peer-urls https://$IP_INT:2380"
     ;;
   existing)
-    ENDPOINTS=
-    for ((i=0;i<=SERVERS;i++)); do
-      [ "$i" -eq "$INDEX" ] && continue
-      ENDPOINTS="http://${IP_INT_PREFIX}.$i.1:2379,$ENDPOINTS"
-    done
-
-    ETCD_OPTS="--initial-cluster-state existing"
+    ETCD_OPTS="--initial-cluster-state existing --initial-cluster $CLUSTER"
     ;;
   *)
     echo "State $STATE is invalid, aborting" >&2
     exit 1 
 esac
-
-ETCD_SERVERS=
-for ((i=0;i<SERVERS;i++)); do
-  ETCD_SERVERS="$ETCD_SERVERS,https://master$i:2379"
-done
 
 cat <<EOF > /etc/environment.calc
 ETCD_OPTS='$ETCD_OPTS'
@@ -70,15 +61,9 @@ for s in etcd k8s-apiserver k8s-controller-manager \
   systemctl start  "$s" --no-block
 done
 
-while ! etcdctl \
-  --ca-file /etc/ssl/5pi-ca.pem \
-  --cert-file /etc/ssl/server.pem \
-  --key-file /etc/ssl/server-key.pem \
-  --endpoint $ENDPOINTS \
-  member add $(hostname) "http://$IP_INT:2380"; do
-  echo "Waiting for remote etcd to be reachable"
-  sleep 1
-done
+if [[ "$STATE" == "new" ]]; then
+  exit 0
+fi
 
 # Waiting for things to be ready
 if [ "$STATE" = "existing" ]; then

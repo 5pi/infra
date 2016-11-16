@@ -31,7 +31,7 @@ ExecStop=/usr/bin/etcdctl \
   --ca-file /etc/ssl/5pi-ca.pem \
   --cert-file /etc/ssl/server.pem \
   --key-file /etc/ssl/server-key.pem \
-  member remove ${NAME}
+  member remove %H
 Restart=always
 StartLimitInterval=0
 

@@ -64,9 +64,6 @@ resource "digitalocean_droplet" "master" {
   private_networking = true
   ipv6               = true
   ssh_keys           = ["${digitalocean_ssh_key.default.id}"]
-  lifecycle {
-    create_before_destroy = true
-  }
 
   provisioner "file" {
     source      = "configure.sh"
