@@ -28,7 +28,7 @@ systemctl start tinc@default
 # Calculate IP_INT
 IP_INT="${IP_INT_PREFIX}.${INDEX}.1"
 
-# Configuring consul
+# Configuring etcd
 case "$STATE" in
   new)
     CLUSTER=
@@ -45,15 +45,6 @@ case "$STATE" in
       ENDPOINTS="http://${IP_INT_PREFIX}.$i.1:2379,$ENDPOINTS"
     done
 
-    while ! etcdctl \
-      --ca-file /etc/ssl/5pi-ca.pem \
-      --cert-file /etc/ssl/server.pem \
-      --key-file /etc/ssl/server-key.pem \
-      --endpoint $ENDPOINTS \
-      member add $(hostname) "http://$IP_INT:2380"; do
-      echo "Waiting for remote etcd to be reachable"
-      sleep 1
-    done
     ETCD_OPTS="--initial-cluster-state existing"
     ;;
   *)
@@ -77,6 +68,16 @@ for s in etcd k8s-apiserver k8s-controller-manager \
     k8s-kubelet k8s-proxy k8s-scheduler docker node_exporter; do
   systemctl enable "$s"
   systemctl start  "$s" --no-block
+done
+
+while ! etcdctl \
+  --ca-file /etc/ssl/5pi-ca.pem \
+  --cert-file /etc/ssl/server.pem \
+  --key-file /etc/ssl/server-key.pem \
+  --endpoint $ENDPOINTS \
+  member add $(hostname) "http://$IP_INT:2380"; do
+  echo "Waiting for remote etcd to be reachable"
+  sleep 1
 done
 
 # Waiting for things to be ready
