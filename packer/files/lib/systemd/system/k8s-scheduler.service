@@ -2,7 +2,6 @@
 Description=Kubernetes scheduler
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 After=tinc@default.service k8s-apiserver.service
-Requires=k8s-apiserver.service
 
 [Service]
 EnvironmentFile=/etc/environment.calc

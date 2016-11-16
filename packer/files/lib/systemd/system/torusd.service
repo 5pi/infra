@@ -1,7 +1,6 @@
 [Unit]
 Description=torus storage daemon
 After=network-online.target etcd.service tinc@default.service
-Requires=tinc@default.service
 
 [Service]
 TimeoutStartSec=0
