@@ -1,6 +1,10 @@
 #!/bin/bash
 exec > /tmp/configure.log 2>&1
-ETCDCTL="etcdctl --endpoints https://$(hostname):2379 --ca-file /etc/ssl/5pi-ca.pem --cert-file /etc/ssl/server.pem --key-file /etc/ssl/server-key.pem"
+ETCDCTL_BASE="etcdctl \
+  --ca-file /etc/ssl/5pi-ca.pem \
+  --cert-file /etc/ssl/server.pem \
+  --key-file /etc/ssl/server-key.pem"
+ETCDCTL="$ETCDCTL_BASE --endpoints https://$(hostname):2379"
 
 # First fix permissions, no matter what. See hashicorp/terraform#8811
 chmod 640  /etc/ssl/server-key.pem
@@ -31,10 +35,14 @@ IP_INT="${IP_INT_PREFIX}.${INDEX}.1"
 
 # Configuring etcd
 ETCD_SERVERS=
+ETCD_SERVERS_OTHER=
 CLUSTER=
 for ((i=0;i<SERVERS;i++)); do
   ETCD_SERVERS="https://master$i:2379,$ETCD_SERVERS"
   CLUSTER="master$i=https://${IP_INT_PREFIX}.$i.1:2380,$CLUSTER"
+  if [[ "$i" -ne "$INDEX" ]]; then
+    ETCD_SERVERS_OTHER="https://master$i:2379,$ETCD_SERVERS_OTHER"
+  fi
 done
 
 case "$STATE" in
@@ -65,6 +73,9 @@ done
 if [[ "$STATE" == "new" ]]; then
   exit 0
 fi
+
+# Add ourself to the existing cluster
+$ETCDCTL_BASE --endpoints $ETCD_SERVERS_OTHER member add master$INDEX "https://$IP_INT:2380"
 
 # Waiting for things to be ready
 if [ "$STATE" = "existing" ]; then
