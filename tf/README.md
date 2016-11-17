@@ -5,12 +5,12 @@
 - create domain
 
 ## Operations
-**When update a existing stack, always use -parallelism=1 or the etcd cluster
-will loose quorum!**
-
 To deploy a new cluster, you need to run `terraform apply -var
 cluster_state=new` which will configure etcd in initial bootstrapping mode.
 
-All subsequential runs of terraform should omit `cluster_state=new` which will
-disable etcd bootstrapping and make upgrades to the system wait for a healthy
-cluster state before continuing.
+The option `cluster_state=new` enables etcd bootstrapping and make it not wait
+for a fully formed cluster before continuing. This is required when deploying
+the cluster the first time.
+
+Since terraform doesn't provide flexible enough orchestration to support rolling
+upgrades, updates to the stack needs to be deployed by running `./upgrade`.

@@ -1,5 +1,6 @@
 #!/bin/bash
 exec > /tmp/configure.log 2>&1
+ETCDCTL="etcdctl --endpoints https://$(hostname):2379 --ca-file /etc/ssl/5pi-ca.pem --cert-file /etc/ssl/server.pem --key-file /etc/ssl/server-key.pem"
 
 # First fix permissions, no matter what. See hashicorp/terraform#8811
 chmod 640  /etc/ssl/server-key.pem
@@ -67,7 +68,7 @@ fi
 
 # Waiting for things to be ready
 if [ "$STATE" = "existing" ]; then
-  while ! etcdctl cluster-health; do
+  while ! $ETCDCTL cluster-health; do
     echo "Waiting for cluster to become healthy"
     sleep 1
   done
