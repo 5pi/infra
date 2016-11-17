@@ -1,0 +1,13 @@
+#!/bin/bash
+set -euo pipefail
+ETCDCTL="etcdctl --endpoints https://$(hostname):2379 \
+  --ca-file /etc/ssl/5pi-ca.pem --cert-file /etc/ssl/server.pem --key-file /etc/ssl/server-key.pem"
+
+ID=$($ETCDCTL member list | awk -F: "/name=$(hostname) / { print \$1 }")
+
+if [[ -z "$ID" ]]; then
+  echo "Couldn't find myself in etcdctl member list" >&2
+  exit 1
+fi
+
+$ETCDCTL member remove "$ID"
