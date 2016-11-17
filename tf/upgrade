@@ -1,0 +1,16 @@
+#!/bin/bash
+set -euo pipefail
+. ../config/env
+
+# It's safe to disable HostKeyChecking since we use no password and the input
+# isn't secret
+SSH="ssh -o StrictHostKeyChecking=no"
+
+for ((i=0;i<SERVERS;i++)); do
+  # FIXME: This should probably use a systemd target
+  $SSH root@edge$i.$DOMAIN "systemctl stop 'k8s*' etcd tinc@default"
+  $SSH root@edge$i.$DOMAIN "shutdown -h now" || true # shutdown kills ssh, so ignoring error
+  ./terraform $@ \
+    -target "digitalocean_droplet.master[$i]" \
+    -target "digitalocean_record.master_a[$i]"
+done
