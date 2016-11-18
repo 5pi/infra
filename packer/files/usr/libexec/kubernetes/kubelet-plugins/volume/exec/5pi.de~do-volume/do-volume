@@ -49,7 +49,7 @@ init_vol() {
 attach_vol() {
   local name=$(echo "$1" | jq -r .volume)
 
-  attached_id=$(ocean GET "/v2/volumes?name=$name&region=$REGION" \
+  attached_id=$(ocean GET "v2/volumes?name=$name&region=$REGION" \
     | jq -r '.volumes[0].droplet_ids[0]') \
       || fatal "Couldn't retrieve volume"
 
@@ -60,7 +60,7 @@ attach_vol() {
     fatal "Volume already attached to $attached_id"
   fi
 
-  response=$(ocean POST "/v2/volumes/actions" \
+  response=$(ocean POST "v2/volumes/actions" \
     "type=attach" \
     "droplet_id=$DROPLET_ID" \
     "volume_name=$name" \
@@ -86,7 +86,7 @@ device_to_name() {
 detach_vol() {
   local device="$1"
   local name=$(device_to_name "$device")
-  response=$(ocean POST "/v2/volumes/actions" \
+  response=$(ocean POST "v2/volumes/actions" \
     "type=detach" \
     "droplet_id=$DROPLET_ID" \
     "volume_name=$name" \
@@ -118,7 +118,7 @@ create_vol() {
   local size="$2"
   shift 2
   local comment="$@"
-  ocean POST "/v2/volumes" \
+  ocean POST "v2/volumes" \
     "name=$name" \
     "size_gigabytes=$size" \
     "comment=$comment" \
