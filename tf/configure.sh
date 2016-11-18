@@ -87,3 +87,5 @@ if [ "$STATE" = "existing" ]; then
     sleep 1
   done
 fi
+
+kubectl uncordon master$INDEX

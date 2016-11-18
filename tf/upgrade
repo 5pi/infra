@@ -11,7 +11,7 @@ tf_upgrade() {
   shift
   # FIXME: This should probably use a systemd target
   if [[ -z "${SKIP_SHUTDOWN:-}" ]]; then
-    $SSH "root@edge$i.$DOMAIN" "systemctl stop 'k8s*' etcd tinc@default"
+    $SSH "root@edge$i.$DOMAIN" "kubectl drain master$i && systemctl stop 'k8s*' etcd tinc@default"
     $SSH "root@edge$i.$DOMAIN" "shutdown -h now" || true # shutdown kills ssh, so ignoring error
   fi
   ./terraform "$@" \
