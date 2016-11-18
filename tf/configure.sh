@@ -75,7 +75,10 @@ if [[ "$STATE" == "new" ]]; then
 fi
 
 # Add ourself to the existing cluster
-$ETCDCTL_BASE --endpoints $ETCD_SERVERS_OTHER member add master$INDEX "https://$IP_INT:2380"
+while ! $ETCDCTL_BASE --endpoints $ETCD_SERVERS_OTHER member add master$INDEX "https://$IP_INT:2380"; do
+  echo "Waiting for existing cluster to be reachable"
+  sleep 1
+done
 
 # Waiting for things to be ready
 if [ "$STATE" = "existing" ]; then
