@@ -49,18 +49,15 @@ Now the stack can be spun up by running:
 ./terraform apply -var cluster_state=new -var image=image-id-from-last-step
 ```
 
-By setting the environment variable CONFIG
 ## Updating a stack
 Since the servers are immutable, configuration shouldn't be changed on the
 systems directly. Instead a new image should be built. Once the build finished,
-the stack can be updated by running:
+the stack can be updated by running this in `tf/`:
 
 ```
-./terraform apply -parallelism=1 -var image=image-id-from-build
+./upgrade apply -var image=image-id-from-build
 ```
 
-Specifying `-parallelism=1` is very important. Otherwise Terraform will remove
-multiple systems at once and when the replacement systems come up the etcd
-cluster won't have quorum to allow them to join. In this case the cluster needs
-to get recreated from scratch. Alternatively you can wipe the etcd data and
-rebuild manually.
+This is a small wrapper around terraform to apply changes to the cluster one
+server at a time. It removes a server from the cluster gracefully and waits for
+a replacement to come up and successfully join the cluster.
