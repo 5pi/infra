@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
-ETCD_VERSION=3.0.15
-KUB_VERSION=1.4.6
-NODE_EXPORTER_VERSION=0.13.0-rc.1
+ETCD_VERSION=3.1.1
+KUB_VERSION=1.4.9
+NODE_EXPORTER_VERSION=0.14.0-rc.1
 
 ETCD_URL="https://github.com/coreos/etcd/releases/download/v${ETCD_VERSION}/etcd-v${ETCD_VERSION}-linux-amd64.tar.gz"
 KUB_URL="https://github.com/kubernetes/kubernetes/releases/download/v${KUB_VERSION}/kubernetes.tar.gz"
