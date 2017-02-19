@@ -62,7 +62,7 @@ $(cat $n/rsa_key.pub)
 EOF
   let i++ || true
 done
-cp /tmp/config/generated/ca.pem /etc/ssl/5pi-ca.pem
+cp /tmp/config/generated/ca.pem ${CA_FILE}
 
 # Set docker options
 sed -i 's/^ExecStart=.*/& --storage-driver=overlay --iptables=false --ip-masq=false --bip ${IP_INT_PREFIX}.${INDEX}.1/' /lib/systemd/system/docker.service 

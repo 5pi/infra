@@ -3,3 +3,4 @@ DOMAIN=int.5pi.de
 SERVERS=3
 SERVER_SIZE=512mb
 IP_INT_PREFIX=10.130
+CA_FILE=/etc/ssl/5pi-ca.pem

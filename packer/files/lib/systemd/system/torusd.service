@@ -12,7 +12,7 @@ ExecStart=/usr/bin/torusd \
   --data-dir /var/lib/torus \
   --size $TORUS_SIZE \
   --etcd https://%H:2379 \
-  --etcd-ca-file /etc/ssl/5pi-ca.pem \
+  --etcd-ca-file ${CA_FILE} \
   --etcd-cert-file /etc/ssl/server.pem \
   --etcd-key-file /etc/ssl/server-key.pem
 Restart=always

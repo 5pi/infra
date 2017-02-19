@@ -15,13 +15,13 @@ ExecStart=/usr/bin/etcd --name master${INDEX} \
   --client-cert-auth \
   --cert-file /etc/ssl/server.pem \
   --key-file /etc/ssl/server-key.pem \
-  --trusted-ca-file /etc/ssl/5pi-ca.pem \
+  --trusted-ca-file ${CA_FILE} \
   \
   --listen-peer-urls "https://${IP_INT}:2380" \
   --peer-client-cert-auth \
   --peer-cert-file /etc/ssl/server.pem \
   --peer-key-file /etc/ssl/server-key.pem \
-  --peer-trusted-ca-file /etc/ssl/5pi-ca.pem \
+  --peer-trusted-ca-file ${CA_FILE} \
   \
   --heartbeat-interval 200 \
   --election-timeout 5000 \
