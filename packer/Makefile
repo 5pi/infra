@@ -15,4 +15,4 @@ all: check_dirty
 		base.json
 
 check_dirty:
-	git status --porcelain | grep -q '^ M ' && false || true
+	git diff-index --quiet HEAD

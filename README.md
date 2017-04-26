@@ -4,7 +4,7 @@
 This is how I deploy Kubernetes to DigitalOcean.
 This aims to be generic enough to also deploy your infrastructure but there
 might be some specifics. The biggest limitation right now is that all servers
-are both master and minion which is discouraged for any lager infrastructure.
+are both master and minion which is discouraged for any larger infrastructure.
 
 While it's possible that this will become a generic way to setup any kind of
 Kubernetes infrastructures, it's not a top priority. If interested in a
@@ -31,6 +31,9 @@ First you might want to edit `config/env` to customize:
 - `SERVERS`: Number of servers
 - `SERVER_SIZE`: Size of servers
 - `IP_INT_PREFIX`: Prefix to use for internal private network (tinc)
+- `CA_FILE`: The full path (on the servers) for your TLS CA cert file
+
+You might also want to edit `config/ca/ca-csr.json`.
 
 Then run `mk_credentials` to create TLS CA and keys in `config/generated/`.
 

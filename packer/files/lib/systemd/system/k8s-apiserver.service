@@ -14,8 +14,8 @@ ExecStart=/usr/bin/hyperkube apiserver \
   --apiserver-count $SERVERS \
   --tls-cert-file /etc/ssl/server.pem \
   --tls-private-key-file /etc/ssl/server-key.pem \
-  --client-ca-file /etc/ssl/5pi-ca.pem \
-  --etcd-cafile /etc/ssl/5pi-ca.pem \
+  --client-ca-file ${CA_FILE} \
+  --etcd-cafile ${CA_FILE} \
   --etcd-certfile /etc/ssl/server.pem \
   --etcd-keyfile /etc/ssl/server-key.pem \
   --cert-dir /etc/kubernetes \
